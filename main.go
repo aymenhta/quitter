@@ -10,11 +10,15 @@ func main() {
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
-			http.Error(w, "URL Path Could not be found", 404)
+			http.NotFound(w, r)
 			return
 		}
 		w.Write([]byte("Hello, gophers;"))
 	})
 
-	log.Fatal(http.ListenAndServe(":4000", mux))
+	log.Println("App started on port :4000")
+	err := http.ListenAndServe(":4000", logRequest(mux))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
