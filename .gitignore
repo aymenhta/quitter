@@ -1,6 +1,6 @@
 .env
 requests/
-
+*.http
 # Binaries for programs and plugins
 *.exe
 *.exe~
