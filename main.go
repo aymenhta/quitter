@@ -46,7 +46,7 @@ func routes() http.Handler {
 		w.Write([]byte("Hello, gophers;"))
 	})
 
-	mux.HandleFunc("/users/signup", handlers.Signup)
+	mux.HandleFunc("/users/signup", handlers.SignUp)
 
 	return logRequest(mux)
 }
