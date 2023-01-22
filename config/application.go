@@ -7,18 +7,18 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Application struct {
+type application struct {
 	InfoLog, ErrorLog *log.Logger
 	UsersModel        *models.UserModel
 }
 
-var App Application
+var G application
 
 func InitApplication(
 	db *pgxpool.Pool,
 	infoLog, errorlog *log.Logger,
 ) {
-	App = Application{
+	G = application{
 		InfoLog:    infoLog,
 		ErrorLog:   errorlog,
 		UsersModel: &models.UserModel{DB: db},

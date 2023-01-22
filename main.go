@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/aymenhta/quitter/config"
 	"github.com/aymenhta/quitter/handlers"
@@ -28,25 +30,56 @@ func main() {
 	config.InitApplication(db, infoLog, errorLog)
 
 	// Run the server
-	infoLog.Println("App started on port :4000")
-	err = http.ListenAndServe(":4000", routes())
+	server := http.Server{
+		Addr:         ":4000",
+		ErrorLog:     errorLog,
+		Handler:      routes(),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+
+	infoLog.Println("SERVER started on port :4000")
+	err = server.ListenAndServe()
 	if err != nil {
 		errorLog.Fatal(err)
 	}
 }
 
+type Post struct {
+	Id       int       `json:"id"`
+	Content  string    `json:"content"`
+	PostedAt time.Time `json:"postedAt"`
+}
+
 func routes() http.Handler {
 	mux := http.NewServeMux()
 
+	// This is just a test endpoint
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}
-		w.Write([]byte("Hello, gophers;"))
+
+		posts := []*Post{
+			{Id: 1, Content: "post #1", PostedAt: time.Now()},
+			{Id: 2, Content: "post #2", PostedAt: time.Now()},
+			{Id: 3, Content: "post #3", PostedAt: time.Now()},
+			{Id: 4, Content: "post #4", PostedAt: time.Now()},
+		}
+
+		// marshal
+		encoder := json.NewEncoder(w)
+		err := encoder.Encode(posts)
+		if err != nil {
+			http.Error(w, "Could not marshal json", http.StatusInternalServerError)
+			return
+		}
 	})
 
-	mux.HandleFunc("/users/signup", handlers.SignUp)
+	mux.HandleFunc("/auth/signup", handlers.SignUp)
+	mux.HandleFunc("/auth/singin", handlers.SignIn)
 
-	return logRequest(mux)
+	return config.LogRequest(mux)
 }
