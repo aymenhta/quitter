@@ -27,11 +27,6 @@ type (
 )
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-
 	// GET the request body
 	dto := &SignUpReq{}
 	decoder := json.NewDecoder(r.Body)
@@ -56,15 +51,12 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(res)
 	if err != nil {
+		config.G.ErrorLog.Println(err)
 		http.Error(w, "Could not marshal json", http.StatusInternalServerError)
 		return
 	}
 }
 
 func SignIn(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
 	w.Write([]byte("This is the sign in"))
 }

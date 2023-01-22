@@ -9,6 +9,7 @@ import (
 
 	"github.com/aymenhta/quitter/config"
 	"github.com/aymenhta/quitter/handlers"
+	"github.com/julienschmidt/httprouter"
 )
 
 func main() {
@@ -53,10 +54,10 @@ type Post struct {
 }
 
 func routes() http.Handler {
-	mux := http.NewServeMux()
+	router := httprouter.New()
 
 	// This is just a test endpoint
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
@@ -78,8 +79,8 @@ func routes() http.Handler {
 		}
 	})
 
-	mux.HandleFunc("/auth/signup", handlers.SignUp)
-	mux.HandleFunc("/auth/singin", handlers.SignIn)
+	router.HandlerFunc(http.MethodPost, "/auth/signup", handlers.SignUp)
+	router.HandlerFunc(http.MethodPost, "/auth/signin", handlers.SignIn)
 
-	return config.LogRequest(mux)
+	return config.LogRequest(router)
 }
