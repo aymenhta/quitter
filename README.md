@@ -16,7 +16,7 @@ Here are database tables....
 
 ## Tasks
     - [] Basic Crud Operations
-      - [] User Crud
+      - [X] User Signup
       - [] Posts Crud
     - [] JWT AuthN/Z
     - [] Advanced Crud

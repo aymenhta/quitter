@@ -85,6 +85,7 @@ func routes() http.Handler {
 
 	// POSTS
 	router.HandlerFunc(http.MethodPost, "/posts", handlers.CreatePost)
+	router.HandlerFunc(http.MethodGet, "/posts/:id", handlers.PostDetails)
 
 	return config.LogRequest(router)
 }

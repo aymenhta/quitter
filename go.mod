@@ -3,6 +3,7 @@ module github.com/aymenhta/quitter
 go 1.19
 
 require (
+	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v5 v5.2.0
 	github.com/joho/godotenv v1.4.0
