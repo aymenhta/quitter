@@ -10,6 +10,7 @@ import (
 type application struct {
 	InfoLog, ErrorLog *log.Logger
 	UsersModel        *models.UserModel
+	PostsModel        *models.PostModel
 }
 
 var G application
@@ -22,5 +23,6 @@ func InitApplication(
 		InfoLog:    infoLog,
 		ErrorLog:   errorlog,
 		UsersModel: &models.UserModel{DB: db},
+		PostsModel: &models.PostModel{DB: db},
 	}
 }

@@ -15,7 +15,7 @@ CREATE INDEX idx_users_id ON users(id);
 CREATE TABLE posts (
     id          SERIAL  PRIMARY KEY,
     content     TEXT    NOT NULL,
-    posted_at   TIME,	
+    posted_at   timestamp,	
     user_id 	SERIAL,
 	CONSTRAINT fk_user
       	FOREIGN KEY(user_id) 
@@ -32,10 +32,10 @@ INSERT iNTO users (username, email, password, joined_at)
 SELECT * FROM users;
 
 INSERT INTO posts (content, posted_at, user_id) 
-	VALUES('This is my first post here!!', CURRENT_TIME, 1);
+	VALUES('This is my first post here!!', NOW(), 1);
 INSERT INTO posts (content, posted_at, user_id) 
-	VALUES('This is my second post here!!', CURRENT_TIME, 1);
+	VALUES('This is my second post here!!', NOW(), 1);
 INSERT INTO posts (content, posted_at, user_id) 
-	VALUES('This is my third post here!!', CURRENT_TIME, 1);
+	VALUES('This is my third post here!!', NOW(), 1);
 	
 SELECT * FROM posts;

@@ -48,6 +48,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	// Send the response
 	res := AuthRes{Id: id, Username: dto.Username, Email: dto.Email, Token: "This-Auth-token"}
+	w.WriteHeader(201)
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(res)
 	if err != nil {

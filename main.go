@@ -47,17 +47,17 @@ func main() {
 	}
 }
 
-type Post struct {
-	Id       int       `json:"id"`
-	Content  string    `json:"content"`
-	PostedAt time.Time `json:"postedAt"`
-}
-
 func routes() http.Handler {
 	router := httprouter.New()
 
 	// This is just a test endpoint
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		type Post struct {
+			Id       int       `json:"id"`
+			Content  string    `json:"content"`
+			PostedAt time.Time `json:"postedAt"`
+		}
+
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
@@ -79,8 +79,12 @@ func routes() http.Handler {
 		}
 	})
 
+	// AUTH
 	router.HandlerFunc(http.MethodPost, "/auth/signup", handlers.SignUp)
 	router.HandlerFunc(http.MethodPost, "/auth/signin", handlers.SignIn)
+
+	// POSTS
+	router.HandlerFunc(http.MethodPost, "/posts", handlers.CreatePost)
 
 	return config.LogRequest(router)
 }
