@@ -1,4 +1,4 @@
-package main
+package helpers
 
 import (
 	"log"
@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getEnvVariable(key string) string {
+func GetEnvVariable(key string) string {
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatalf("Error loading .env file")
 	}

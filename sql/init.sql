@@ -28,14 +28,22 @@ CREATE INDEX idx_posts_id ON posts(id);
 INSERT iNTO users (username, email, password, joined_at) 
 	VALUES ('aymengk94', 'aymengk94@gmail.com', 'test123', CURRENT_DATE);
 	
+INSERT iNTO users (username, email, password, joined_at) 
+	VALUES ('aymenz', 'aymenz@gmail.com', 'test123', CURRENT_DATE);
+	
 	
 SELECT * FROM users;
 
 INSERT INTO posts (content, posted_at, user_id) 
 	VALUES('This is my first post here!!', NOW(), 1);
 INSERT INTO posts (content, posted_at, user_id) 
-	VALUES('This is my second post here!!', NOW(), 1);
+	VALUES('This is my second post here!!', NOW(), 2);
 INSERT INTO posts (content, posted_at, user_id) 
 	VALUES('This is my third post here!!', NOW(), 1);
 	
 SELECT * FROM posts;
+
+SELECT P.id, P.content, P.posted_at,
+		P.user_id, U.username
+		FROM posts P JOIN users U ON P.user_id = U.id
+		WHERE P.id = 1;

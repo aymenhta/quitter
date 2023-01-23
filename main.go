@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -9,11 +8,12 @@ import (
 
 	"github.com/aymenhta/quitter/config"
 	"github.com/aymenhta/quitter/handlers"
+	"github.com/aymenhta/quitter/helpers"
 	"github.com/julienschmidt/httprouter"
 )
 
 func main() {
-	dbUrl := getEnvVariable("DATABASE_URL")
+	dbUrl := helpers.GetEnvVariable("DATABASE_URL")
 
 	// Config default logging
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -70,13 +70,7 @@ func routes() http.Handler {
 			{Id: 4, Content: "post #4", PostedAt: time.Now()},
 		}
 
-		// marshal
-		encoder := json.NewEncoder(w)
-		err := encoder.Encode(posts)
-		if err != nil {
-			http.Error(w, "Could not marshal json", http.StatusInternalServerError)
-			return
-		}
+		helpers.EncodeRes(w, posts)
 	})
 
 	// AUTH

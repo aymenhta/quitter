@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -36,13 +35,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	// GET The request body
 	dto := &CreatePostReq{}
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(dto)
-	if err != nil {
-		config.G.ErrorLog.Println(err)
-		http.Error(w, "Could not decode request's body", http.StatusInternalServerError)
-		return
-	}
+	helpers.DecodeReq(w, r, dto)
 
 	// TODO: validate the request data
 
@@ -62,13 +55,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		UserId:   1,
 	}
 	w.WriteHeader(201)
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(res)
-	if err != nil {
-		config.G.ErrorLog.Println(err)
-		http.Error(w, "Could not marshal json", http.StatusInternalServerError)
-		return
-	}
+	helpers.EncodeRes(w, res)
 }
 
 func PostDetails(w http.ResponseWriter, r *http.Request) {
@@ -97,12 +84,5 @@ func PostDetails(w http.ResponseWriter, r *http.Request) {
 		Username: postDetails.Username,
 	}
 	w.WriteHeader(200)
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(res)
-	if err != nil {
-		config.G.ErrorLog.Println(err)
-		http.Error(w, "Could not marshal json", http.StatusInternalServerError)
-		return
-	}
-
+	helpers.EncodeRes(w, res)
 }
