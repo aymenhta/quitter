@@ -2,12 +2,22 @@ package models
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+type PostsList struct {
+	ID       int
+	Content  string
+	PostedAt time.Time
+	UserId   int
+	Username string
+}
 
 type PostDetails struct {
 	ID       int
@@ -37,7 +47,7 @@ func (model *PostModel) Create(content string, userId int) (int, time.Time, erro
 	return id, postedAt.Time, nil
 }
 
-func (model *PostModel) GetPosts() ([]*PostDetails, error) {
+func (model *PostModel) GetPosts() ([]*PostsList, error) {
 	stmnt := `SELECT P.id, P.content, P.posted_at,
 				P.user_id, U.username
 				FROM posts P JOIN users U ON P.user_id = U.id
@@ -45,7 +55,7 @@ func (model *PostModel) GetPosts() ([]*PostDetails, error) {
 
 	// row := model.DB.QueryRow(context.Background(), stmnt, id)
 
-	var posts []*PostDetails
+	var posts []*PostsList
 	err := pgxscan.Select(context.Background(), model.DB, &posts, stmnt)
 	if err != nil {
 		return nil, err
@@ -65,8 +75,38 @@ func (model *PostModel) GetPost(id int) (*PostDetails, error) {
 	postDetails := &PostDetails{}
 	err := pgxscan.Get(context.Background(), model.DB, postDetails, stmnt, id)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNoRecord
+		}
 		return nil, err
 	}
 
 	return postDetails, nil
+}
+
+func (model *PostModel) DeletePost(id int) error {
+	// Check if the rcord exists in the database
+	exists, err := model.PostExists(id)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return ErrNoRecord
+	}
+
+	stmnt := `DELETE FROM posts WHERE id = $1;`
+
+	_, err = model.DB.Exec(context.Background(), stmnt, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (model *PostModel) PostExists(id int) (bool, error) {
+	var exists bool
+	stmt := "SELECT EXISTS(SELECT true FROM posts WHERE id = $1)"
+	err := model.DB.QueryRow(context.Background(), stmt, id).Scan(&exists)
+	return exists, err
 }
