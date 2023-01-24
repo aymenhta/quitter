@@ -28,6 +28,29 @@ type PostDetailsRes struct {
 	Username string `json:"username"`
 }
 
+func GetPosts(w http.ResponseWriter, r *http.Request) {
+	posts, err := config.G.PostsModel.GetPosts()
+	if err != nil {
+		config.G.ErrorLog.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Send back the response
+	var res []PostDetailsRes
+	for _, v := range posts {
+		res = append(res, PostDetailsRes{
+			ID:       v.ID,
+			Content:  v.Content,
+			PostedAt: helpers.ToHumanTimeStamp(v.PostedAt),
+			UserId:   v.UserId,
+			Username: v.Username,
+		})
+	}
+	w.WriteHeader(200)
+	helpers.EncodeRes(w, res)
+}
+
 // What to return after creating a record
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	// ! Here make sure to get the id of the current authenticated user
@@ -40,7 +63,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	// TODO: validate the request data
 
 	// INSERT THE RECORD INTO THE DATABASE
-	id, postedAt, err := config.G.PostsModel.Insert(dto.Content, userId)
+	id, postedAt, err := config.G.PostsModel.Create(dto.Content, userId)
 	if err != nil {
 		config.G.ErrorLog.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -68,7 +91,7 @@ func PostDetails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// GET Post Details From the database
-	postDetails, err := config.G.PostsModel.GetPostDetails(id)
+	postDetails, err := config.G.PostsModel.GetPost(id)
 	if err != nil {
 		config.G.ErrorLog.Println(err)
 		http.Error(w, "Could not get post details", http.StatusInternalServerError)

@@ -78,6 +78,7 @@ func routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/auth/signin", handlers.SignIn)
 
 	// POSTS
+	router.HandlerFunc(http.MethodGet, "/posts", handlers.GetPosts)
 	router.HandlerFunc(http.MethodPost, "/posts", handlers.CreatePost)
 	router.HandlerFunc(http.MethodGet, "/posts/:id", handlers.PostDetails)
 

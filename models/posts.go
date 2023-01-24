@@ -22,7 +22,7 @@ type PostModel struct {
 	DB *pgxpool.Pool
 }
 
-func (model *PostModel) Insert(content string, userId int) (int, time.Time, error) {
+func (model *PostModel) Create(content string, userId int) (int, time.Time, error) {
 	stmnt := `INSERT INTO posts (content, user_id, posted_at)
 					VALUES ($1, $2, NOW())
 					RETURNING id, posted_at;`
@@ -37,7 +37,24 @@ func (model *PostModel) Insert(content string, userId int) (int, time.Time, erro
 	return id, postedAt.Time, nil
 }
 
-func (model *PostModel) GetPostDetails(id int) (*PostDetails, error) {
+func (model *PostModel) GetPosts() ([]*PostDetails, error) {
+	stmnt := `SELECT P.id, P.content, P.posted_at,
+				P.user_id, U.username
+				FROM posts P JOIN users U ON P.user_id = U.id
+				ORDER BY P.posted_at DESC;`
+
+	// row := model.DB.QueryRow(context.Background(), stmnt, id)
+
+	var posts []*PostDetails
+	err := pgxscan.Select(context.Background(), model.DB, &posts, stmnt)
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
+
+func (model *PostModel) GetPost(id int) (*PostDetails, error) {
 	stmnt := `SELECT P.id, P.content, P.posted_at,
 				P.user_id, U.username
 				FROM posts P JOIN users U ON P.user_id = U.id
