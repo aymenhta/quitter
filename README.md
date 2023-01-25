@@ -13,6 +13,13 @@ Here are database tables....
 | password    | CHAR(60)     | NOT NULL        |
 | joined_at   | DATE         | -               |
 
+### Posts table
+| Attributes  | Datatype     | Constraints       |
+|    :----:   |    :----:    |    :----:         |
+| id          | SERIAL       | PRIMARY KEY       |
+| content     | TEXT         | NOT NULL          |
+| posted_at   | TIMESTAMP    | -                 |
+| user_id     | SERIAL       | ON DELETE CASCADE |
 
 ## Tasks
     - [] Basic Crud Operations
