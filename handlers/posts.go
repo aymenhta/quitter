@@ -60,7 +60,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 			Username: v.Username,
 		})
 	}
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	helpers.EncodeRes(w, res)
 }
 
@@ -93,7 +93,7 @@ func PostDetails(w http.ResponseWriter, r *http.Request) {
 		UserId:   postDetails.UserId,
 		Username: postDetails.Username,
 	}
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	helpers.EncodeRes(w, res)
 }
 
@@ -123,7 +123,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		PostedAt: helpers.ToHumanTimeStamp(postedAt),
 		UserId:   1,
 	}
-	w.WriteHeader(201)
+	w.WriteHeader(http.StatusCreated)
 	helpers.EncodeRes(w, res)
 }
 
@@ -143,7 +143,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, models.ErrNoRecord) {
 			http.NotFound(w, r)
 		} else {
-			http.Error(w, "Could not get post details", http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		return
 	}

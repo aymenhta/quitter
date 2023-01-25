@@ -43,7 +43,16 @@ INSERT INTO posts (content, posted_at, user_id)
 	
 SELECT * FROM posts;
 
+-- GET A POST
 SELECT P.id, P.content, P.posted_at,
 		P.user_id, U.username
 		FROM posts P JOIN users U ON P.user_id = U.id
 		WHERE P.id = 1;
+		
+-- GET ALL POSTS
+SELECT P.id, P.content, P.posted_at,
+		P.user_id, U.username
+		FROM posts P JOIN users U ON P.user_id = U.id
+		ORDER BY P.posted_at DESC;
+		
+SELECT EXISTS (SELECT id FROM posts WHERE id = 6);
