@@ -3,9 +3,9 @@ package models
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
@@ -37,21 +37,13 @@ func (model *UserModel) Insert(username, email, password string) (int, error) {
 	var id int
 	err = model.DB.QueryRow(context.Background(), stmnt, username, email, hashedPassword).Scan(&id)
 	if err != nil {
-		// TODO: FIX ERROR HANDLING
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) { // ? Why isn't it working...
-			// Here check for duplicate emails or userames
-			if pgErr.Code == pgerrcode.UniqueViolation {
-				switch pgErr.ConstraintName {
-				case "users_email_key":
-					return 0, errors.New("email already taken")
-				case "users_username_key":
-					return 0, errors.New("username already taken")
-				}
+		errMsg := err.Error()
+		if strings.Contains(errMsg, pgerrcode.UniqueViolation) {
+			if strings.Contains(errMsg, "users_email_key") {
+				return 0, errors.New("email already taken")
+			} else if strings.Contains(errMsg, "users_username_key") {
+				return 0, errors.New("username already taken")
 			}
-
-			// fmt.Println(pgErr.Message) // => syntax error at end of input
-			// fmt.Println(pgErr.Code)    // => 42601
 		}
 		return 0, err
 	}
