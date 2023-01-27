@@ -9,4 +9,4 @@ content-type: application/json
     "content": "sixth post to be published"
 }
 
-DELETE http://localhost:4000/posts/7 HTTP/1.1
+DELETE http://localhost:4000/posts/1 HTTP/1.1

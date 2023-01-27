@@ -85,20 +85,14 @@ func (model *PostModel) GetPost(id int) (*PostDetails, error) {
 }
 
 func (model *PostModel) DeletePost(id int) error {
-	// Check if the rcord exists in the database
-	exists, err := model.PostExists(id)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return ErrNoRecord
-	}
-
 	stmnt := `DELETE FROM posts WHERE id = $1;`
 
-	_, err = model.DB.Exec(context.Background(), stmnt, id)
+	commandTag, err := model.DB.Exec(context.Background(), stmnt, id)
 	if err != nil {
 		return err
+	}
+	if commandTag.RowsAffected() != 1 {
+		return ErrNoRecord
 	}
 
 	return nil
