@@ -74,8 +74,10 @@ func routes() http.Handler {
 	})
 
 	// AUTH
-	r.Post("/auth/signup", handlers.SignUp)
-	r.Post("/auth/signin", handlers.SignIn)
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/signup", handlers.SignUp)
+		r.Post("/signin", handlers.SignIn)
+	})
 
 	// POSTS
 	r.Route("/posts", func(r chi.Router) {
@@ -89,12 +91,6 @@ func routes() http.Handler {
 
 		r.Get("/by-user/{userId}", handlers.GetUserPosts)
 	})
-
-	// r.Get("/posts", handlers.GetPosts)
-	// r.Post("/posts", handlers.CreatePost)
-	// r.Get("/posts/{id}", handlers.PostDetails)
-	// r.Delete("/posts/{id}", handlers.DeletePost)
-	// r.Get("/posts/by-user/{userId}", handlers.GetUserPosts)
 
 	return r
 }
