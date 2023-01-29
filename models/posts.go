@@ -104,3 +104,21 @@ func (model *PostModel) PostExists(id int) (bool, error) {
 	err := model.DB.QueryRow(context.Background(), stmt, id).Scan(&exists)
 	return exists, err
 }
+
+func (model *PostModel) GetUserPosts(userId int) ([]*PostsList, error) {
+	stmnt := `SELECT P.id, P.content, P.posted_at,
+				P.user_id, U.username
+				FROM posts P JOIN users U ON P.user_id = U.id
+				WHERE P.user_id = $1
+				ORDER BY P.posted_at DESC;`
+
+	// row := model.DB.QueryRow(context.Background(), stmnt, id)
+
+	var posts []*PostsList
+	err := pgxscan.Select(context.Background(), model.DB, &posts, stmnt, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}

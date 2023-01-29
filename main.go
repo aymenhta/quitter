@@ -9,7 +9,7 @@ import (
 	"github.com/aymenhta/quitter/config"
 	"github.com/aymenhta/quitter/handlers"
 	"github.com/aymenhta/quitter/helpers"
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -48,10 +48,10 @@ func main() {
 }
 
 func routes() http.Handler {
-	router := httprouter.New()
-
+	r := chi.NewRouter()
+	r.Use(config.LogRequest)
 	// This is just a test endpoint
-	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		type Post struct {
 			Id       int       `json:"id"`
 			Content  string    `json:"content"`
@@ -74,14 +74,27 @@ func routes() http.Handler {
 	})
 
 	// AUTH
-	router.HandlerFunc(http.MethodPost, "/auth/signup", handlers.SignUp)
-	router.HandlerFunc(http.MethodPost, "/auth/signin", handlers.SignIn)
+	r.Post("/auth/signup", handlers.SignUp)
+	r.Post("/auth/signin", handlers.SignIn)
 
 	// POSTS
-	router.HandlerFunc(http.MethodGet, "/posts", handlers.GetPosts)
-	router.HandlerFunc(http.MethodPost, "/posts", handlers.CreatePost)
-	router.HandlerFunc(http.MethodGet, "/posts/:id", handlers.PostDetails)
-	router.HandlerFunc(http.MethodDelete, "/posts/:id", handlers.DeletePost)
+	r.Route("/posts", func(r chi.Router) {
+		r.Get("/", handlers.GetPosts)
+		r.Post("/", handlers.CreatePost)
 
-	return config.LogRequest(router)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", handlers.PostDetails)
+			r.Delete("/", handlers.DeletePost)
+		})
+
+		r.Get("/by-user/{userId}", handlers.GetUserPosts)
+	})
+
+	// r.Get("/posts", handlers.GetPosts)
+	// r.Post("/posts", handlers.CreatePost)
+	// r.Get("/posts/{id}", handlers.PostDetails)
+	// r.Delete("/posts/{id}", handlers.DeletePost)
+	// r.Get("/posts/by-user/{userId}", handlers.GetUserPosts)
+
+	return r
 }

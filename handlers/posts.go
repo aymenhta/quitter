@@ -9,7 +9,7 @@ import (
 	"github.com/aymenhta/quitter/config"
 	"github.com/aymenhta/quitter/helpers"
 	"github.com/aymenhta/quitter/models"
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 )
 
 type (
@@ -66,8 +66,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 
 func PostDetails(w http.ResponseWriter, r *http.Request) {
 	// GET :id value from the url
-	params := httprouter.ParamsFromContext(r.Context())
-	id, err := strconv.Atoi(params.ByName("id"))
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
 		return
@@ -129,8 +128,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	// GET :id value from the url
-	params := httprouter.ParamsFromContext(r.Context())
-	id, err := strconv.Atoi(params.ByName("id"))
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
 		return
@@ -151,4 +149,37 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	msg := fmt.Sprintf("Post %v was deleted successfully", id)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(msg))
+}
+
+// TODO: test this endpoint before pushing
+func GetUserPosts(w http.ResponseWriter, r *http.Request) {
+	// GET :id value from the url
+	userId, err := strconv.Atoi(chi.URLParam(r, "userId"))
+	if err != nil || userId < 1 {
+		http.NotFound(w, r)
+		return
+	}
+
+	// TODO: Check if the user exists or not
+
+	posts, err := config.G.PostsModel.GetUserPosts(userId)
+	if err != nil {
+		config.G.ErrorLog.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Send back the response
+	var res []PostsListRes
+	for _, v := range posts {
+		res = append(res, PostsListRes{
+			ID:       v.ID,
+			Content:  v.Content,
+			PostedAt: helpers.ToHumanTimeStamp(v.PostedAt),
+			UserId:   v.UserId,
+			Username: v.Username,
+		})
+	}
+	w.WriteHeader(http.StatusOK)
+	helpers.EncodeRes(w, res)
 }

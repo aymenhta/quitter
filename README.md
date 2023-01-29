@@ -29,6 +29,7 @@ Here are database tables....
     - [] JWT AuthN/Z
     - [] Advanced Crud
       - [] Posts Pagination
+      - [] Reqctions System (UP VOTE/DOWN VOTE)
       - [] Nested Comments System
       - [] Followers System
     - [] Sending Emails
