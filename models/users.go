@@ -23,7 +23,7 @@ type UserModel struct {
 	DB *pgxpool.Pool
 }
 
-func (model *UserModel) Insert(username, email, password string) (int, error) {
+func (model *UserModel) Create(username, email, password string) (int, error) {
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {

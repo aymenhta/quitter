@@ -2,13 +2,13 @@ GET http://localhost:4000/posts/by-user/2 HTTP/1.1
 
 GET http://localhost:4000/posts/ HTTP/1.1
 
-GET http://localhost:4000/posts/3 HTTP/1.1
+GET http://localhost:4000/posts/8 HTTP/1.1
 
 POST http://localhost:4000/posts HTTP/1.1
 content-type: application/json
 
 {
-    "content": "sixth post to be published"
+    "content": "I've lost count at this point"
 }
 
 DELETE http://localhost:4000/posts/1 HTTP/1.1

@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/aymenhta/quitter/config"
+	"github.com/aymenhta/quitter/helpers"
+	"github.com/aymenhta/quitter/helpers/validator"
 )
 
 type (
@@ -29,17 +30,24 @@ type (
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	// GET the request body
 	dto := &SignUpReq{}
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(dto)
-	if err != nil {
-		config.G.ErrorLog.Println(err)
-		http.Error(w, "Could not decode the request body", http.StatusInternalServerError)
+	helpers.DecodeReq(w, r, dto)
+
+	// Validate req body
+	v := validator.NewValidator()
+	v.Check(dto.Username != "", "username", "must be provided")
+	v.Check(len(dto.Username) < 3 || len(dto.Username) > 64, "username", "must be between 3 to 64 bytes long")
+	v.Check(dto.Email != "", "email", "must be provided")
+	v.Check(validator.Matches(dto.Email, validator.EmailRx), "email", "must be in the correct format")
+	v.Check(dto.Password != "", "password", "must be provided")
+	v.Check(len(dto.Password) < 6 || len(dto.Password) > 64, "password", "must be atleast 6 bytes long")
+	if !v.Valid() {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		helpers.EncodeRes(w, v.Errors)
 		return
 	}
-	// TODO: Validate json
 
 	// Add user to the database
-	id, err := config.G.UsersModel.Insert(dto.Username, dto.Email, dto.Password)
+	id, err := config.G.UsersModel.Create(dto.Username, dto.Email, dto.Password)
 	if err != nil {
 		config.G.ErrorLog.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -48,14 +56,8 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	// Send the response
 	res := AuthRes{Id: id, Username: dto.Username, Email: dto.Email, Token: "This-Auth-token"}
-	w.WriteHeader(201)
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(res)
-	if err != nil {
-		config.G.ErrorLog.Println(err)
-		http.Error(w, "Could not marshal json", http.StatusInternalServerError)
-		return
-	}
+	w.WriteHeader(http.StatusCreated)
+	helpers.EncodeRes(w, res)
 }
 
 func SignIn(w http.ResponseWriter, r *http.Request) {

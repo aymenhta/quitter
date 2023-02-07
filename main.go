@@ -49,7 +49,9 @@ func main() {
 
 func routes() http.Handler {
 	r := chi.NewRouter()
+
 	r.Use(config.LogRequest)
+
 	// This is just a test endpoint
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		type Post struct {
