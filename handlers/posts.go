@@ -8,6 +8,7 @@ import (
 
 	"github.com/aymenhta/quitter/config"
 	"github.com/aymenhta/quitter/helpers"
+	"github.com/aymenhta/quitter/helpers/validator"
 	"github.com/aymenhta/quitter/models"
 	"github.com/go-chi/chi/v5"
 )
@@ -105,7 +106,14 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	dto := &CreatePostReq{}
 	helpers.DecodeReq(w, r, dto)
 
-	// TODO: validate the request data
+	// request validation
+	v := validator.NewValidator()
+	v.Check(dto.Content != "", "content", "must be provided")
+	if !v.Valid() {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		helpers.EncodeRes(w, v.Errors)
+		return
+	}
 
 	// INSERT THE RECORD INTO THE DATABASE
 	id, postedAt, err := config.G.PostsModel.Create(dto.Content, userId)
@@ -151,7 +159,6 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(msg))
 }
 
-// TODO: test this endpoint before pushing
 func GetUserPosts(w http.ResponseWriter, r *http.Request) {
 	// GET :id value from the url
 	userId, err := strconv.Atoi(chi.URLParam(r, "userId"))

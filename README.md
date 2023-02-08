@@ -25,7 +25,7 @@ Here are database tables....
     - [] Basic Crud Operations
       - [X] User Signup
       - [X] Posts Crud
-      - [] JSON Validation
+      - [x] JSON Validation
     - [] JWT AuthN/Z
     - [] Advanced Crud
       - [] Posts Pagination
